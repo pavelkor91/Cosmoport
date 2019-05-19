@@ -23,12 +23,26 @@ public class ShipController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Ship getShip(@PathVariable(value = "id") String id){
+        Long idl;
         try {
-            Long idl = Long.parseLong(id);
+            idl = Long.parseLong(id);
         }
         catch (NumberFormatException e){
             throw new BadRequestException();
         }
-        return service.getShip(Long.parseLong(id));
+        return service.getShip(idl);
+    }
+
+    @DeleteMapping(value = "/ships/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteShip(@PathVariable(value = "id") String id){
+        Long idl;
+        try {
+            idl = Long.parseLong(id);
+        }
+        catch (NumberFormatException e){
+            throw new BadRequestException();
+        }
+        service.deleteShip(idl);
     }
 }

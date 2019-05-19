@@ -17,14 +17,23 @@ public class ShipServiceImpl implements ShipService{
         this.shipRepository = shipRepository;
     }
 
-    @Override
-    public Ship getShip(Long id) {
+    private void idValidation(Long id){
         if(id == null || id == 0)
             throw new BadRequestException();
 
         if(shipRepository.existsById(id) == false)
             throw new ShipNotFoundException();
+    }
 
+    @Override
+    public Ship getShip(Long id) {
+        idValidation(id);
         return shipRepository.findById(id).get();
+    }
+
+    @Override
+    public void deleteShip(Long id) {
+        idValidation(id);
+        shipRepository.deleteById(id);
     }
 }
