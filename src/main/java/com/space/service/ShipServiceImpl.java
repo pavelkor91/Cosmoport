@@ -1,5 +1,7 @@
 package com.space.service;
 
+import com.space.Exeptions.BadRequestException;
+import com.space.Exeptions.ShipNotFoundException;
 import com.space.model.Ship;
 import com.space.repository.ShipRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,12 @@ public class ShipServiceImpl implements ShipService{
 
     @Override
     public Ship getShip(Long id) {
+        if(id == null || id == 0)
+            throw new BadRequestException();
+
+        if(shipRepository.existsById(id) == false)
+            throw new ShipNotFoundException();
+
         return shipRepository.findById(id).get();
     }
 }
