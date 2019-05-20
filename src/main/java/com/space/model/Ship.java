@@ -1,9 +1,14 @@
 package com.space.model;
 
+
+import org.springframework.validation.annotation.Validated;
+
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.util.Date;
 
 @Entity
+@Validated
 @Table(name = "ship")
 public class Ship {
 
@@ -12,25 +17,37 @@ public class Ship {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "name")
+    @NotNull
+    @Size(min = 1, max = 50)
+    @Column(name = "name", length=50)
     private String name;
 
-    @Column(name = "planet")
+    @NotNull
+    @Size(min = 1, max = 50)
+    @Column(name = "planet", length=50)
     private String planet;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "shipType")
     private ShipType shipType;
 
+    @NotNull
     @Column(name = "prodDate")
     private Date prodDate;
 
     @Column(name = "isUsed")
     private Boolean isUsed;
 
+    @NotNull
+    @DecimalMin("0.01")
+    @DecimalMax("0.99")
     @Column(name = "speed")
     private Double speed;
 
+    @NotNull
+    @Min(1)
+    @Max(9999)
     @Column(name = "crewSize")
     private Integer crewSize;
 

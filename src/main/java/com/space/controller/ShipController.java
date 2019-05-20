@@ -45,4 +45,13 @@ public class ShipController {
         }
         service.deleteShip(idl);
     }
+
+    @PostMapping(value = "/ships")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public Ship addShip(@RequestBody Ship ship) {
+
+        return service.addShip(ship);
+
+    }
 }
