@@ -33,6 +33,7 @@ public class Ship {
     private ShipType shipType;
 
     @NotNull
+    @FutureOrPresent
     @Column(name = "prodDate")
     private Date prodDate;
 
