@@ -54,4 +54,17 @@ public class ShipController {
         return service.addShip(ship);
 
     }
+    @PostMapping(value = "/ships/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public Ship editShip(@PathVariable(value = "id") String id, @RequestBody Ship ship) {
+        Long idl;
+        try {
+            idl = Long.parseLong(id);
+        }
+        catch (NumberFormatException e){
+            throw new BadRequestException();
+        }
+        return service.updateShip(idl, ship);
+    }
 }

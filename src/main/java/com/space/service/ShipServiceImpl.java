@@ -4,6 +4,7 @@ import com.space.Exeptions.BadRequestException;
 import com.space.Exeptions.ShipNotFoundException;
 import com.space.model.Ship;
 import com.space.repository.ShipRepository;
+import org.apache.commons.beanutils.BeanUtilsBean;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Calendar;
@@ -20,6 +22,11 @@ import java.util.Set;
 public class ShipServiceImpl implements ShipService{
 
     private ShipRepository shipRepository;
+    private static final Validator VALIDATOR = Validation.byDefaultProvider()
+            .configure()
+            .messageInterpolator(new ParameterMessageInterpolator())
+            .buildValidatorFactory()
+            .getValidator();
 
 
     @Autowired
@@ -62,12 +69,7 @@ public class ShipServiceImpl implements ShipService{
 
     @Override
     public Ship addShip(Ship newShip) {
-        Validator validator = Validation.byDefaultProvider()
-                .configure()
-                .messageInterpolator(new ParameterMessageInterpolator())
-                .buildValidatorFactory()
-                .getValidator();
-       Set<ConstraintViolation<Ship>> constraintViolations = validator.validate(newShip);
+       Set<ConstraintViolation<Ship>> constraintViolations = VALIDATOR.validate(newShip);
        if (constraintViolations.size() > 0) {
            throw new BadRequestException();
        }
@@ -78,5 +80,33 @@ public class ShipServiceImpl implements ShipService{
         Double raiting = getRation(newShip);
         newShip.setRating(raiting);
         return shipRepository.saveAndFlush(newShip);
+    }
+
+    @Override
+    public Ship updateShip(long id, Ship ship) {
+        idValidation(id);
+        Set<ConstraintViolation<Ship>> constraintViolations = VALIDATOR.validate(ship);
+        if (constraintViolations.size() > 0) {
+            for(ConstraintViolation<Ship> constraintViolation: constraintViolations){
+                if(constraintViolation.getMessage().equals("Null")){
+                    continue;
+                }
+                else
+                    throw new BadRequestException();
+            }
+        }
+        BeanUtilsBean notNull = new NullAwareBeanUtilsBean();
+
+        Ship dbShip = shipRepository.findById(id).get();
+        try {
+            notNull.copyProperties(dbShip, ship);
+        }
+        catch (IllegalAccessException | InvocationTargetException e){
+        }
+        Double rate = getRation(dbShip);
+        dbShip.setRating(rate);
+        dbShip.setId(id);
+
+        return shipRepository.save(dbShip);
     }
 }

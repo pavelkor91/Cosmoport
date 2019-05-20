@@ -17,22 +17,22 @@ public class Ship {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotNull
+    @NotNull(message = "Null")
     @Size(min = 1, max = 50)
     @Column(name = "name", length=50)
     private String name;
 
-    @NotNull
+    @NotNull(message = "Null")
     @Size(min = 1, max = 50)
     @Column(name = "planet", length=50)
     private String planet;
 
-    @NotNull
+    @NotNull(message = "Null")
     @Enumerated(EnumType.STRING)
     @Column(name = "shipType")
     private ShipType shipType;
 
-    @NotNull
+    @NotNull(message = "Null")
     @FutureOrPresent
     @Column(name = "prodDate")
     private Date prodDate;
@@ -40,13 +40,13 @@ public class Ship {
     @Column(name = "isUsed")
     private Boolean isUsed;
 
-    @NotNull
+    @NotNull(message = "Null")
     @DecimalMin("0.01")
     @DecimalMax("0.99")
     @Column(name = "speed")
     private Double speed;
 
-    @NotNull
+    @NotNull(message = "Null")
     @Min(1)
     @Max(9999)
     @Column(name = "crewSize")

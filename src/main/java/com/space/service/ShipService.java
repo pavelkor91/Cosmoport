@@ -8,5 +8,6 @@ public interface ShipService {
     void deleteShip(Long id);
     Integer getShipsCount();
     Ship addShip(Ship newShip);
+    Ship updateShip(long id, Ship ship);
 
 }
