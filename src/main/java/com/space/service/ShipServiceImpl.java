@@ -2,7 +2,9 @@ package com.space.service;
 
 import com.space.Exeptions.BadRequestException;
 import com.space.Exeptions.ShipNotFoundException;
+import com.space.controller.ShipOrder;
 import com.space.model.Ship;
+import com.space.model.ShipType;
 import com.space.repository.ShipRepository;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
@@ -15,8 +17,7 @@ import javax.validation.Validator;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Calendar;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class ShipServiceImpl implements ShipService{
@@ -62,10 +63,6 @@ public class ShipServiceImpl implements ShipService{
         shipRepository.deleteById(id);
     }
 
-    @Override
-    public Integer getShipsCount() {
-        return null;
-    }
 
     @Override
     public Ship addShip(Ship newShip) {
@@ -80,6 +77,63 @@ public class ShipServiceImpl implements ShipService{
         Double raiting = getRation(newShip);
         newShip.setRating(raiting);
         return shipRepository.saveAndFlush(newShip);
+    }
+
+    @Override
+    public List<Ship> getAllShips(String name, String planet, ShipType shipType, Long after, Long before, Boolean isUsed, Double minSpeed,
+                                  Double maxSpeed, Integer minCrewSize, Integer maxCrewSize, Double minRating, Double maxRating,
+                                  ShipOrder order) {
+        Date afterDate = after == null ? null : new Date(after);
+        Date beforeDate = before == null ? null : new Date(before);
+        List<Ship> allShips = shipRepository.findAll();
+        Iterator iterator = allShips.iterator();
+        //TODO remake by criteria api specification
+        while (iterator.hasNext()){
+            Ship tmp = (Ship)iterator.next();
+            if(name != null && !tmp.getName().toLowerCase().contains(name.toLowerCase())) {iterator.remove(); continue;}
+            if(planet != null && !tmp.getPlanet().toLowerCase().contains(planet.toLowerCase())) {iterator.remove(); continue;}
+            if(shipType != null && tmp.getShipType() != shipType) {iterator.remove(); continue;}
+            if(beforeDate != null && tmp.getProdDate().after(beforeDate)) {iterator.remove(); continue;}
+            if(afterDate != null && tmp.getProdDate().before(afterDate)) {iterator.remove(); continue;}
+            if(minCrewSize != null && tmp.getCrewSize() < minCrewSize) {iterator.remove(); continue;}
+            if(maxCrewSize != null && tmp.getCrewSize() > maxCrewSize) {iterator.remove(); continue;}
+            if(isUsed != null && tmp.getUsed().booleanValue() != isUsed.booleanValue()) {iterator.remove(); continue;}
+            if(minSpeed != null && tmp.getSpeed() < minSpeed) {iterator.remove(); continue;}
+            if(maxSpeed != null && tmp.getSpeed() > maxSpeed) {iterator.remove(); continue;}
+            if(minRating != null && tmp.getRating() < minRating) {iterator.remove(); continue;}
+            if(maxRating != null && tmp.getRating() > maxRating) {iterator.remove(); continue;}
+        }
+
+        if(order != null)
+        Collections.sort(allShips, new Comparator<Ship>() {
+            @Override
+            public int compare(Ship o1, Ship o2) {
+                switch (order){
+                    case SPEED: return o1.getSpeed().compareTo(o2.getSpeed());
+                    case ID: return o1.getId().compareTo(o2.getId());
+                    case DATE: return o1.getProdDate().compareTo(o2.getProdDate());
+                    case RATING: return o1.getRating().compareTo(o2.getRating());
+                    default: return 0;
+                }
+            }
+        });
+
+        return allShips;
+    }
+
+    @Override
+    public List<Ship> pagination(List<Ship> ships, Integer pageNumber, Integer pageSize) {
+        int first = pageNumber * pageSize;
+        int last = first + pageSize > ships.size() ? ships.size() : first + pageSize;
+
+        return ships.subList(first, last);
+    }
+
+
+    @Override
+    public Integer getShipsCount(String name, String planet, ShipType shipType, Long after, Long before, Boolean isUsed, Double minSpeed, Double maxSpeed, Integer minCrewSize, Integer maxCrewSize, Double minRating, Double maxRating, ShipOrder order) {
+         return getAllShips(name, planet, shipType, after, before, isUsed, minSpeed, maxSpeed,
+                minCrewSize, maxCrewSize, minRating, maxRating, order).size();
     }
 
     @Override
@@ -109,4 +163,5 @@ public class ShipServiceImpl implements ShipService{
 
         return shipRepository.save(dbShip);
     }
+
 }

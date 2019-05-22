@@ -15,7 +15,7 @@ public class Ship {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @NotNull(message = "Null")
     @Size(min = 1, max = 50)
@@ -55,7 +55,7 @@ public class Ship {
     @Column(name = "rating")
     private Double rating;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
